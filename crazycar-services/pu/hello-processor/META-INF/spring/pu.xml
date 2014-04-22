@@ -13,6 +13,8 @@
 
 <!-- ========================================================================================================== -->
 
+<os-events:annotation-support />
+
     <!--
         A bean representing a space (an IJSpace implementation).
     -->
@@ -31,7 +33,10 @@
     <!--
         The processor bean
     -->
+    <bean id="trafficLightService" class="crazycar.logic.TrafficLightService"/>
+    <bean id="snpapshotService" class="crazycar.logic.SnapshotService"/>
     <bean id="carService" class="crazycar.logic.CarService"/>
+    
 
     <!--
         A Polling Container bean that performs repeated take operations from the space of objects matching a defined template.
@@ -41,7 +46,7 @@
         This bean has the method processMessage(), which is invoked on the taken object, retuning a processed object.
         After the object is processed, it is written back to the space by the Polling Container. 
     -->
-    <os-events:polling-container id="carServicePollingEventContainer" giga-space="gigaSpace">
+    <os-events:polling-container id="trafficLightServicePollingEventContainer" giga-space="gigaSpace">
     <os-events:tx-support tx-manager="transactionManager"/>
     <os-core:template>
         <bean class="org.openspaces.example.helloworld.common.Message">
@@ -50,10 +55,36 @@
     </os-core:template>
     <os-events:listener>
         <os-events:annotation-adapter>
-            <os-events:delegate ref="carService"/>
+            <os-events:delegate ref="trafficLightService"/>
         </os-events:annotation-adapter>
     </os-events:listener>
 </os-events:polling-container>
+<os-events:notify-container id="snpapshotServiceNotifyContainer" giga-space="gigaSpace">
+
+    <os-core:template>
+        <bean class="crazycar.persistent.spaces.RoxelSpace">
+        </bean>
+    </os-core:template>
+
+    <os-events:listener>
+        <os-events:annotation-adapter>
+            <os-events:delegate ref="snpapshotService"/>
+        </os-events:annotation-adapter>
+    </os-events:listener>
+</os-events:notify-container>
+<os-events:notify-container id="carServiceNotifyContainer" giga-space="gigaSpace">
+
+    <os-core:template>
+        <bean class="crazycar.persistent.spaces.RoxelSpace">
+        </bean>
+    </os-core:template>
+
+    <os-events:listener>
+        <os-events:annotation-adapter>
+            <os-events:delegate ref="carService"/>
+        </os-events:annotation-adapter>
+    </os-events:listener>
+</os-events:notify-container>
     
 <!-- ===================================================================================================== -->
 

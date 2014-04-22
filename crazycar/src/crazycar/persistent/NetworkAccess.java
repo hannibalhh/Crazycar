@@ -12,13 +12,11 @@ import com.gigaspaces.client.ChangeSet;
 import com.j_spaces.core.client.SQLQuery;
 
 import crazycar.logic.data.Car;
-import crazycar.logic.data.Location;
 import crazycar.logic.data.Network;
 import crazycar.logic.data.Roxel;
 import crazycar.logic.data.Snapshot;
 import crazycar.persistent.spaces.CarSpace;
 import crazycar.persistent.spaces.DirectionSpace;
-import crazycar.persistent.spaces.LocationSpace;
 import crazycar.persistent.spaces.RoxelSpace;
 
 public class NetworkAccess {

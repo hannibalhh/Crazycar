@@ -1,37 +1,69 @@
 package crazycar.logic;
 
-import org.openspaces.events.adapter.SpaceDataEvent;
-import org.openspaces.example.helloworld.common.Message;
-
 import java.util.logging.Logger;
+import org.openspaces.events.EventDriven;
+import org.openspaces.events.EventTemplate;
+import org.openspaces.events.adapter.SpaceDataEvent;
+import org.openspaces.events.notify.Notify;
+import org.openspaces.events.notify.NotifyType;
 
+import com.j_spaces.core.client.SQLQuery;
 
-/**
- * The processor is passed interesting Objects from its associated PollingContainer
- * <p>The PollingContainer removes objects from the GigaSpace that match the criteria
- * specified for it.
- * <p>Once the Processor receives each Object, it modifies its state and returns it to
- * the PollingContainer which writes them back to the GigaSpace
- * <p/>
- * <p>The PollingContainer is configured in the pu.xml file of this project
- */
+import crazycar.Crazycar;
+import crazycar.logic.data.Direction;
+import crazycar.logic.data.Location;
+import crazycar.logic.data.Roxel;
+import crazycar.persistent.spaces.RoxelSpace;
+
+@EventDriven 
+@Notify
+@NotifyType(write = true, update = true)
 public class CarService {
-    Logger logger=Logger.getLogger(this.getClass().getName());
+	
+  Logger log = Logger.getLogger(this.getClass().getName());
 
-    /**
-     * Process the given Message and return it to the caller.
-     * This method is invoked using OpenSpaces Events when a matching event
-     * occurs.
-     */
-    @SpaceDataEvent
-    public Message processMessage(Message msg) {
-        logger.info("CarService PROCESSING: " + msg);
-        msg.setInfo2(msg.getInfo2() + "World !!");
-        return msg;
-    }
+	private Roxel roxel = Roxel.empty(Direction.east, Location.valueOf(1, 2)); // = Crazycar.networkAccess.takeRandomRoxel();
+	
+	// init mit einer random location
+	public CarService(){
+		//TODO direction not allowed to be blocked
+//		Crazycar.networkAccess.write(roxel.toCar());
+		log.info("init " + roxel);
+	}
+	
+	@EventTemplate
+	public SQLQuery<RoxelSpace> nextRoxelTemplate(){
+		Roxel r = roxel.nextRoxel();
+		log.info("next roxel template" + r);		
+		return Crazycar.networkAccess.roxelWithCarQuery(r);
+	}
+	
+	@SpaceDataEvent
+	public void stepEvent(RoxelSpace rspace){
+		log.info("event with " + rspace);
+		Crazycar.networkAccess.roxelWithCar(roxel.nextRoxel());
+		Roxel r = rspace.toRoxel();
+		Crazycar.networkAccess.releaseRoxel(roxel);
+		sleep(1000);
+		roxel = r;
+	}
+	
+	void sleep(int i){
+		try {
+			Thread.sleep(i);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+	}
 
-    public CarService() {
-        logger.info("Processor instantiated, waiting for messages feed...");
-    }
-
+	// step 
+	// drive to next location	
+	/*  TODO: 
+	 * - Grab free next Area  
+	 * - Grab exclusive new-writing Tuple 
+	 * - write old location <NORTH/EAST/SOUTH/WEST/TODECIDE> (as before, every roxel hast ONE direction)
+	 * - write new location BLOCKED
+	 * - write new Location in FIFO
+	 * - release exclusive new-writing Tuple  
+	 */
 }
