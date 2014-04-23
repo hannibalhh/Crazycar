@@ -21,7 +21,6 @@ public enum CarBackground {
 	
 	private static BufferedImage read(String url){
 	  try {
-	  	System.out.println(new File(url).isFile());
 	    return ImageIO.read(new File(url));
     } catch (IOException e) {
 	    e.printStackTrace();

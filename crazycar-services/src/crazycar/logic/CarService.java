@@ -1,33 +1,37 @@
 package crazycar.logic;
 
 import java.util.logging.Logger;
+
+import org.openspaces.core.GigaSpace;
 import org.openspaces.events.EventDriven;
 import org.openspaces.events.EventTemplate;
 import org.openspaces.events.adapter.SpaceDataEvent;
 import org.openspaces.events.notify.Notify;
+import org.openspaces.events.notify.NotifyBatch;
 import org.openspaces.events.notify.NotifyType;
 
 import com.j_spaces.core.client.SQLQuery;
 
-import crazycar.Crazycar;
-import crazycar.logic.data.Direction;
-import crazycar.logic.data.Location;
 import crazycar.logic.data.Roxel;
+import crazycar.persistent.NetworkAccess;
 import crazycar.persistent.spaces.RoxelSpace;
 
 @EventDriven 
 @Notify
 @NotifyType(write = true, update = true)
+@NotifyBatch(size = 10, time = 500, passArrayAsIs = true)
 public class CarService {
 	
   Logger log = Logger.getLogger(this.getClass().getName());
 
-	private Roxel roxel = Roxel.empty(Direction.east, Location.valueOf(1, 2)); // = Crazycar.networkAccess.takeRandomRoxel();
+	private Roxel roxel = new NetworkAccess().takeRandomRoxel();
 	
 	// init mit einer random location
 	public CarService(){
+		NetworkAccess n = new NetworkAccess();
+		roxel = n.takeRandomRoxel();
 		//TODO direction not allowed to be blocked
-//		Crazycar.networkAccess.write(roxel.toCar());
+		n.write(roxel.toCar());
 		log.info("init " + roxel);
 	}
 	
@@ -35,16 +39,16 @@ public class CarService {
 	public SQLQuery<RoxelSpace> nextRoxelTemplate(){
 		Roxel r = roxel.nextRoxel();
 		log.info("next roxel template" + r);		
-		return Crazycar.networkAccess.roxelWithCarQuery(r);
+		return NetworkAccess.roxelWithCarQuery(r);
 	}
 	
 	@SpaceDataEvent
-	public void stepEvent(RoxelSpace rspace){
+	public void stepEvent(RoxelSpace rspace, GigaSpace giga){
 		log.info("event with " + rspace);
-		Crazycar.networkAccess.roxelWithCar(roxel.nextRoxel());
+		new NetworkAccess(giga).roxelWithCar(roxel.nextRoxel());
 		Roxel r = rspace.toRoxel();
-		Crazycar.networkAccess.releaseRoxel(roxel);
-		sleep(1000);
+		new NetworkAccess(giga).releaseRoxel(roxel);
+//		sleep(1000);
 		roxel = r;
 	}
 	

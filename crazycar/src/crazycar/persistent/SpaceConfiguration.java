@@ -10,7 +10,7 @@ public class SpaceConfiguration {
 	private static final SpaceConfiguration space = new SpaceConfiguration();
 	private static final Logger log = Logger.getLogger(SpaceConfiguration.class);
 
-	private final String name = "myGrid";
+	private final String name = "crazycarSpace";
 	private final String standard = "jini://*/*/" + name;
 	private final String processingunits = "/./" + name;
 

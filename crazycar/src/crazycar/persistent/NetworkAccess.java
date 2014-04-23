@@ -22,10 +22,15 @@ import crazycar.persistent.spaces.RoxelSpace;
 public class NetworkAccess {
 	private static Logger log = Logger.getLogger(NetworkAccess.class);
 
-	private final GigaSpace space = SpaceConfiguration.create().getInstance();
+	private final GigaSpace space;
 	
 	public NetworkAccess(){
-		log.debug("start");
+		space = SpaceConfiguration.create().getInstance();
+		log.debug("start with space " + space);
+	}
+	
+	public NetworkAccess(GigaSpace g){
+		space = g;
 	}
 	
 	public void cleanup(){
@@ -43,7 +48,7 @@ public class NetworkAccess {
 		space.write(RoxelSpace.valueOf(r));
 	}
 	
-	public SQLQuery<RoxelSpace> roxelWithCarQuery(Roxel r){
+	public static SQLQuery<RoxelSpace> roxelWithCarQuery(Roxel r){
 		SQLQuery<RoxelSpace> query = new SQLQuery<RoxelSpace>(RoxelSpace.class,"location.row =" + r.getLocation().getRow() + " and location.column = " + r.getLocation().getColumn() + " and car.empty = true");
 		return query;
 	}
@@ -61,7 +66,7 @@ public class NetworkAccess {
 		return r;
 	}
 	
-	public SQLQuery<RoxelSpace> takeRandomRoxelQuery(){
+	public static SQLQuery<RoxelSpace> takeRandomRoxelQuery(){
 		return new SQLQuery<RoxelSpace>(RoxelSpace.class,"car.empty = true and direction.direction != 'nodecide'");
 	}
 	
@@ -79,7 +84,7 @@ public class NetworkAccess {
 		return Arrays.asList(space.readMultiple(query));
 	}
 	
-	public SQLQuery<RoxelSpace> snapshotSpaceQuery(){
+	public static SQLQuery<RoxelSpace> snapshotSpaceQuery(){
 		SQLQuery<RoxelSpace> query = new SQLQuery<RoxelSpace>(RoxelSpace.class,"car.empty = false");
 		return query;
 	}

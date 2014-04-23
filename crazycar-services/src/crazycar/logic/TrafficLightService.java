@@ -1,5 +1,6 @@
 package crazycar.logic;
 
+import org.openspaces.core.GigaSpace;
 import org.openspaces.events.adapter.SpaceDataEvent;
 import org.openspaces.example.helloworld.common.Message;
 
@@ -24,7 +25,7 @@ public class TrafficLightService {
      * occurs.
      */
     @SpaceDataEvent
-    public Message processMessage(Message msg) {
+    public Message processMessage(Message msg, GigaSpace giga) {
         log.info("CarService PROCESSING: " + msg);
         msg.setInfo2(msg.getInfo2() + "World !!");
         return msg;

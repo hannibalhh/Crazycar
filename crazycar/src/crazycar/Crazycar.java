@@ -1,8 +1,5 @@
 package crazycar;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
 import org.apache.log4j.Logger;
 
 import com.google.common.eventbus.EventBus;
@@ -32,21 +29,14 @@ public class Crazycar {
 		return new Crazycar();
 	}
 
-	public static void start() {
+	public static Crazycar start() {
 		networkAccess.cleanup();
-		startGUI();
+		Crazycar c = startGUI();
 		bus.post(network);
 		networkAccess.save(network);
-		carInit();
 		log.debug(networkAccess.snapshot());
+		return c;
 	}
-
-	private static void carInit() {
-		for (int i = 0; i < cars; i += 1) {
-//			new CarService();
-		}
-//		new SnapshotService();
-  }
 
 	public static EventBus bus() {
 		return bus;

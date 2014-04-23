@@ -94,6 +94,6 @@ public class CrazycarGUI extends GameGrid {
 	}
 
 	public static String imagefolder() {
-		return new File("").getAbsolutePath() + File.separator + "images" + File.separator + imagesize + File.separator;
+		return "/Users/hannibal/Documents/workspace/tt2" + File.separator + "images" + File.separator + imagesize + File.separator;
 	}
 }
